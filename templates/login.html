@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="auth-container border-0 text-center">
+                <div class="mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 70px; height: 70px; font-size: 1.8rem;">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h2 class="fw-bold">Welcome Back</h2>
+                    <p class="text-muted">Please log in to your account</p>
+                </div>
+
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-floating mb-3">
+                        {% if form.email.errors %}
+                            {{ form.email(class="form-control is-invalid", id="emailInput", placeholder="name@example.com") }}
+                            <div class="invalid-feedback text-start">
+                                {% for error in form.email.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.email(class="form-control", id="emailInput", placeholder="name@example.com") }}
+                        {% endif %}
+                        <label for="emailInput">Email address</label>
+                    </div>
+
+                    <div class="form-floating mb-4">
+                        {% if form.password.errors %}
+                            {{ form.password(class="form-control is-invalid", id="pwdInput", placeholder="Password") }}
+                            <div class="invalid-feedback text-start">
+                                {% for error in form.password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.password(class="form-control", id="pwdInput", placeholder="Password") }}
+                        {% endif %}
+                        <label for="pwdInput">Password</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            {{ form.remember(class="form-check-input", id="rememberCheck") }}
+                            {{ form.remember.label(class="form-check-label text-muted", for="rememberCheck") }}
+                        </div>
+                        <a href="#" class="text-primary text-decoration-none small">Forgot password?</a>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        {{ form.submit(class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm") }}
+                    </div>
+                </form>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <p class="text-muted mb-0">Don't have an account? <a href="{{ url_for('user.register') }}" class="text-primary fw-bold text-decoration-none">Sign up</a></p>
+                </div>
+                
+                <!-- Demo info -->
+                <div class="mt-4 alert alert-info py-2" role="alert">
+                    <small>Admin demo: admin@pizza.com / admin123</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

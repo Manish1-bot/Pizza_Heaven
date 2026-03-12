@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <div class="col-md-3 col-lg-2 admin-sidebar py-4 position-fixed h-100 overflow-auto" style="z-index: 1000; top: 76px;">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-user-shield fs-1 text-primary mb-2"></i>
+                <h5 class="text-white mb-0">Admin Panel</h5>
+            </div>
+            <ul class="nav flex-column admin-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fa-solid fa-gauge me-2 w-20px text-center"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.orders') }}">
+                        <i class="fa-solid fa-clipboard-list me-2 w-20px text-center"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin.manage_pizzas') }}">
+                        <i class="fa-solid fa-pizza-slice me-2 w-20px text-center"></i> Pizzas
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-9 offset-md-3 col-lg-10 offset-lg-2 admin-content">
+            <div class="mb-4 d-flex align-items-center">
+                <a href="{{ url_for('admin.manage_pizzas') }}" class="btn btn-outline-secondary btn-sm me-3"><i class="fa-solid fa-arrow-left"></i></a>
+                <h2 class="mb-0 fw-bold">{{ legend }}</h2>
+            </div>
+            
+            <div class="card border-0 shadow-sm rounded-4 max-w-800">
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Name</label>
+                                    {% if form.name.errors %}
+                                        {{ form.name(class="form-control is-invalid bg-light") }}
+                                        <div class="invalid-feedback">{% for error in form.name.errors %}<span>{{ error }}</span>{% endfor %}</div>
+                                    {% else %}
+                                        {{ form.name(class="form-control bg-light") }}
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Description</label>
+                                    {% if form.description.errors %}
+                                        {{ form.description(class="form-control is-invalid bg-light", rows="3") }}
+                                    {% else %}
+                                        {{ form.description(class="form-control bg-light", rows="3") }}
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Category</label>
+                                    {% if form.category.errors %}
+                                        {{ form.category(class="form-select is-invalid bg-light") }}
+                                    {% else %}
+                                        {{ form.category(class="form-select bg-light") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Right Column: Image and Status -->
+                            <div class="col-md-4">
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase w-100">Status</label>
+                                    <div class="form-check form-switch fs-5">
+                                        {{ form.is_available(class="form-check-input shadow-none", id="flexSwitchCheckDefault") }}
+                                        <label class="form-check-label ms-2 mt-1 fs-6" for="flexSwitchCheckDefault">Available for Order</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Pizza Image</label>
+                                    {% if pizza and pizza.image_url %}
+                                    <div class="mb-3">
+                                        <img src="{{ url_for('static', filename='images/pizzas/' + pizza.image_url) }}" class="img-thumbnail rounded-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                    </div>
+                                    {% endif %}
+                                    {{ form.image(class="form-control bg-light") }}
+                                    {% if form.image.errors %}
+                                        <div class="text-danger small mt-1">{% for error in form.image.errors %}{{ error }}{% endfor %}</div>
+                                    {% endif %}
+                                    <small class="text-muted d-block mt-1">Leave empty to keep current image. We recommend 800x800px square images.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Row -->
+                        <h5 class="fw-bold border-bottom pb-2 mt-2 mb-4">Pricing Configuration</h5>
+                        <div class="row mb-5 g-3">
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <label class="form-label fw-bold d-flex justify-content-between align-items-center">Small (8") <i class="fa-solid fa-pizza-slice text-primary fa-sm"></i></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 bg-white">₹</span>
+                                        {{ form.size_small_price(class="form-control border-start-0 ps-0 fw-bold") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <label class="form-label fw-bold d-flex justify-content-between align-items-center">Medium (10") <i class="fa-solid fa-pizza-slice text-primary"></i></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 bg-white">₹</span>
+                                        {{ form.size_medium_price(class="form-control border-start-0 ps-0 fw-bold") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="p-3 border rounded-3 bg-light">
+                                    <label class="form-label fw-bold d-flex justify-content-between align-items-center">Large (12") <i class="fa-solid fa-pizza-slice text-primary fa-lg"></i></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 bg-white">₹</span>
+                                        {{ form.size_large_price(class="form-control border-start-0 ps-0 fw-bold") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                            <a href="{{ url_for('admin.manage_pizzas') }}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                            {{ form.submit(class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

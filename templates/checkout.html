@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold"><i class="fa-solid fa-credit-card text-primary me-2"></i> Checkout</h1>
+        <p class="text-muted">Complete your order details</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="fw-bold border-bottom pb-3 mb-4"><span class="badge bg-primary rounded-circle me-2">1</span> Delivery Information</h4>
+                    
+                    <form action="" method="POST" id="checkoutForm">
+                        <div class="mb-4">
+                            <label for="address" class="form-label fw-bold">Delivery Address <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required placeholder="Enter complete delivery address...">{{ current_user.address }}</textarea>
+                            <div class="form-text">We'll deliver your hot pizza to this address.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="instructions" class="form-label fw-bold">Special Instructions</label>
+                            <textarea class="form-control" id="instructions" name="special_instructions" rows="2" placeholder="E.g., Drop at reception, call when arrived..."></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold d-block mb-3">Contact Information</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control bg-light" id="name" value="{{ current_user.username }}" readonly>
+                                        <label for="name">Name</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control bg-light" id="phone" value="{{ current_user.phone }}" readonly>
+                                        <label for="phone">Phone Number</label>
+                                    </div>
+                                    <small class="text-muted">Update phone number in your profile if needed.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h4 class="fw-bold border-bottom pb-3 mb-4"><span class="badge bg-primary rounded-circle me-2">2</span> Payment Method</h4>
+                    
+                    <div class="form-check p-3 border rounded-3 border-primary bg-primary bg-opacity-10 mb-2">
+                        <input class="form-check-input ms-1" type="radio" name="payment_type" id="payOnline" value="online" checked>
+                        <label class="form-check-label ms-2 fw-bold w-100 d-flex justify-content-between align-items-center" for="payOnline">
+                            <span><i class="fa-solid fa-credit-card text-primary me-2"></i> Pay Online (Razorpay)</span>
+                            <div class="d-flex text-muted gap-2">
+                                <i class="fa-brands fa-cc-visa fs-4"></i>
+                                <i class="fa-brands fa-cc-mastercard fs-4"></i>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 bg-light sticky-top" style="top: 100px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4 border-bottom pb-3">Order Abstract</h5>
+                    
+                    <div class="cart-items mb-4" style="max-height: 250px; overflow-y: auto;">
+                        {% for item_key, item in cart.items() %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ item.name }}</h6>
+                                <small class="text-muted">{{ item.size | capitalize }} x {{ item.quantity }}</small>
+                            </div>
+                            <span class="fw-bold text-end">₹{{ item.price * item.quantity }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <hr class="border-secondary mb-3">
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-bold">₹{{ "%.2f"|format(subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tax (5%)</span>
+                        <span class="fw-bold">₹{{ "%.2f"|format(tax) }}</span>
+                    </div>
+                    
+                    <hr class="my-3 border-secondary">
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Amount to Pay</span>
+                        <span class="fw-bold fs-4 text-primary">₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    
+                    <button type="submit" form="checkoutForm" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm">
+                        <i class="fa-solid fa-lock me-2"></i> Pay ₹{{ "%.2f"|format(total) }}
+                    </button>
+                    <div class="text-center mt-3">
+                        <small class="text-muted"><i class="fa-solid fa-shield-halved me-1 text-success"></i> Secure 256-bit encryption</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

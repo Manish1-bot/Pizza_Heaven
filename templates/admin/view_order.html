@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Order Details #{{ order.id }} - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar Menu -->
+        <div class="col-md-3 col-lg-2 admin-sidebar py-4 position-fixed h-100 overflow-auto" style="z-index: 1000; top: 76px;">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-user-shield fs-1 text-primary mb-2"></i>
+                <h5 class="text-white mb-0">Admin Panel</h5>
+            </div>
+            <ul class="nav flex-column admin-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fa-solid fa-gauge me-2 w-20px text-center"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin.orders') }}">
+                        <i class="fa-solid fa-clipboard-list me-2 w-20px text-center"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.manage_pizzas') }}">
+                        <i class="fa-solid fa-pizza-slice me-2 w-20px text-center"></i> Pizzas
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 offset-md-3 col-lg-10 offset-lg-2 admin-content">
+            <div class="d-flex align-items-center mb-4">
+                <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary btn-sm me-3"><i class="fa-solid fa-arrow-left"></i></a>
+                <h2 class="mb-0 fw-bold">Order #{{ order.id }} Details</h2>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Items Ordered</h5>
+                            <span class="text-muted small">{{ order.order_date.strftime('%B %d, %Y - %I:%M %p') }}</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                {% for item in order.items %}
+                                <li class="list-group-item p-4 border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3" style="width: 60px; height: 60px;">
+                                            <img src="{{ url_for('static', filename='images/pizzas/' + (item.pizza.image_url if item.pizza.image_url else 'default_pizza.png')) }}" alt="{{ item.pizza.name }}" class="img-thumbnail rounded-3 w-100 h-100 object-fit-cover">
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold mb-1">{{ item.pizza.name }}</h6>
+                                            <div class="text-muted small">
+                                                Size: <span class="badge bg-light text-dark border me-2">{{ item.size | capitalize }}</span>
+                                                Qty: <span class="fw-bold text-dark">{{ item.quantity }}</span> x ₹{{ item.unit_price }}
+                                            </div>
+                                        </div>
+                                        <div class="fw-bold text-end ps-3">
+                                            ₹{{ "%.2f"|format(item.unit_price * item.quantity) }}
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-light p-4 border-top text-end">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal:</span>
+                                <span>₹{{ "%.2f"|format(order.total_amount / 1.05) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                                <span class="text-muted">Tax (5%):</span>
+                                <span>₹{{ "%.2f"|format(order.total_amount - (order.total_amount / 1.05)) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold fs-5">Total Amount:</span>
+                                <span class="fw-bold fs-4 text-primary">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Status Update Card -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 border-top border-primary border-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2">Update Order Status</h5>
+                            <form action="{{ url_for('admin.view_order', order_id=order.id) }}" method="POST">
+                                <div class="mb-3">
+                                    <select name="status" class="form-select form-select-lg shadow-none" 
+                                        {% if order.status == 'delivered' %}disabled{% endif %}
+                                        style="font-weight: bold; background-color: #f8f9fa;">
+                                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                                        <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                        <option value="ready" {% if order.status == 'ready' %}selected{% endif %}>Ready</option>
+                                        <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm" {% if order.status == 'delivered' %}disabled{% endif %}>
+                                    <i class="fa-solid fa-arrows-rotate me-2"></i> Update Status
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Customer Info Card -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-bottom p-4">
+                            <h5 class="fw-bold mb-0">Customer Information</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fa-solid fa-user text-primary fs-4 me-3 w-20px text-center"></i>
+                                <div>
+                                    <div class="text-muted small text-uppercase">Name</div>
+                                    <div class="fw-bold">{{ order.customer.username }}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fa-solid fa-phone text-primary fs-4 me-3 w-20px text-center"></i>
+                                <div>
+                                    <div class="text-muted small text-uppercase">Phone</div>
+                                    <div class="fw-bold">{{ order.customer.phone }}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="fa-solid fa-envelope text-primary fs-4 me-3 w-20px text-center"></i>
+                                <div>
+                                    <div class="text-muted small text-uppercase">Email</div>
+                                    <div><a href="mailto:{{ order.customer.email }}" class="text-decoration-none">{{ order.customer.email }}</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery & Payment Card -->
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-uppercase text-muted small mb-3">Delivery Address</h6>
+                            <p class="mb-4 p-3 bg-light rounded-3">{{ order.delivery_address }}</p>
+
+                            {% if order.special_instructions %}
+                            <h6 class="fw-bold text-uppercase text-muted small mb-2">Special Instructions</h6>
+                            <p class="mb-4 text-danger fw-bold"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ order.special_instructions }}</p>
+                            {% endif %}
+
+                            <h6 class="fw-bold text-uppercase text-muted small mb-3 border-top pt-3">Payment Information</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Method</span>
+                                <span class="text-dark fw-bold text-capitalize">{{ order.payment_method }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Status</span>
+                                {% if order.payment_status == 'completed' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ order.payment_status }}</span>
+                                {% endif %}
+                            </div>
+                            {% if order.payment %}
+                            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                                <span class="text-muted small">Transaction ID</span>
+                                <span class="text-muted font-monospace small" style="word-break: break-all; max-width: 60%; text-align: right;">{{ order.payment.transaction_id }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

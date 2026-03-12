@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 admin-sidebar py-4 position-fixed h-100 overflow-auto" style="z-index: 1000; top: 76px;">
+            <div class="text-center mb-4">
+                <i class="fa-solid fa-user-shield fs-1 text-primary mb-2"></i>
+                <h5 class="text-white mb-0">Admin Panel</h5>
+            </div>
+            <ul class="nav flex-column admin-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fa-solid fa-gauge me-2 w-20px text-center"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.orders') }}">
+                        <i class="fa-solid fa-clipboard-list me-2 w-20px text-center"></i> Orders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin.manage_pizzas') }}">
+                        <i class="fa-solid fa-pizza-slice me-2 w-20px text-center"></i> Pizzas
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 offset-md-3 col-lg-10 offset-lg-2 admin-content">
+            <h2 class="mb-4 fw-bold">Dashboard Overview</h2>
+            
+            <!-- Cards Row -->
+            <div class="row g-4 mb-5">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-primary text-white admin-card h-100 overflow-hidden position-relative">
+                        <div class="card-body p-4">
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75">Today's Orders</h6>
+                            <h2 class="display-5 fw-bold mb-0">{{ total_orders_today }}</h2>
+                        </div>
+                        <i class="fa-solid fa-clipboard-list stat-icon"></i>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-success text-white admin-card h-100 overflow-hidden position-relative">
+                        <div class="card-body p-4">
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75">Today's Revenue</h6>
+                            <h2 class="display-6 fw-bold mb-0 pt-1">₹{{ "%.2f"|format(total_revenue) }}</h2>
+                        </div>
+                        <i class="fa-solid fa-indian-rupee-sign stat-icon"></i>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-warning text-dark admin-card h-100 overflow-hidden position-relative">
+                        <div class="card-body p-4">
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75">Pending Orders</h6>
+                            <h2 class="display-5 fw-bold mb-0">{{ pending_orders }}</h2>
+                        </div>
+                        <i class="fa-solid fa-clock-rotate-left stat-icon text-dark"></i>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-info text-white admin-card h-100 overflow-hidden position-relative">
+                        <div class="card-body p-4">
+                            <h6 class="text-uppercase mb-2 fw-bold opacity-75">Total Customers</h6>
+                            <h2 class="display-5 fw-bold mb-0">{{ total_customers }}</h2>
+                        </div>
+                        <i class="fa-solid fa-users stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders Table -->
+            <div class="table-container mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Recent Orders</h5>
+                    <a href="{{ url_for('admin.orders') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date/Time</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td class="fw-bold">#{{ order.id }}</td>
+                                <td>{{ order.customer.username }}</td>
+                                <td>{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td class="fw-bold">₹{{ "%.2f"|format(order.total_amount) }}</td>
+                                <td>
+                                    {% if order.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% elif order.status == 'confirmed' %}
+                                        <span class="badge bg-primary">Confirmed</span>
+                                    {% elif order.status == 'preparing' %}
+                                        <span class="badge bg-info text-dark">Preparing</span>
+                                    {% elif order.status == 'ready' %}
+                                        <span class="badge bg-success">Ready</span>
+                                    {% elif order.status == 'delivered' %}
+                                        <span class="badge bg-secondary">Delivered</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin.view_order', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">No orders found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

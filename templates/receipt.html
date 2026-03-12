@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Order Receipt - #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="text-center mb-4">
+                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow shadow-success" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h1 class="display-6 fw-bold text-success font-monospace">Order Confirmed!</h1>
+                <p class="text-muted fs-5">Thank you for your order, {{ current_user.username }}.</p>
+                <p class="lead">Your pizza is being prepared to perfection.</p>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" id="receiptCard">
+                <div class="card-header bg-primary text-white p-4 border-0">
+                    <div class="row align-items-center">
+                        <div class="col-sm-6 text-center text-sm-start mb-3 mb-sm-0">
+                            <h3 class="mb-0 fw-bold"><i class="fa-solid fa-pizza-slice me-2"></i>Pizza Heaven</h3>
+                            <small class="opacity-75">Order Receipt</small>
+                        </div>
+                        <div class="col-sm-6 text-center text-sm-end">
+                            <h5 class="mb-0 font-monospace">ORDER #{{ order.id }}</h5>
+                            <small class="opacity-75">{{ order.order_date.strftime('%B %d, %Y - %I:%M %p') }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <div class="row mb-5">
+                        <div class="col-sm-6 mb-4 mb-sm-0">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3">Delivery Details</h6>
+                            <p class="mb-1 fw-bold">{{ current_user.username }}</p>
+                            <p class="mb-1 text-muted">{{ current_user.phone }}</p>
+                            <p class="text-muted mb-0" style="max-width: 250px;">{{ order.delivery_address }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <h6 class="text-uppercase text-muted fw-bold mb-3">Payment Info</h6>
+                            <p class="mb-1"><span class="text-muted border-end pe-2 me-2">Method</span> <span class="fw-bold"><i class="fa-solid fa-credit-card text-primary me-1"></i> Razorpay</span></p>
+                            <p class="mb-1"><span class="text-muted border-end pe-2 me-2">Status</span> <span class="badge bg-success">Paid</span></p>
+                            {% if order.payment %}
+                            <p class="mb-0"><span class="text-muted border-end pe-2 me-2">Txn ID</span> <span class="font-monospace small text-muted">{{ order.payment.transaction_id }}</span></p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <h6 class="text-uppercase text-muted fw-bold mb-3 border-bottom pb-2">Order Summary</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-borderless">
+                            <thead class="border-bottom text-muted">
+                                <tr>
+                                    <th scope="col" class="pb-3 w-50">Item</th>
+                                    <th scope="col" class="pb-3 text-center">Qty</th>
+                                    <th scope="col" class="pb-3 text-end">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items %}
+                                <tr>
+                                    <td class="pt-3">
+                                        <div class="fw-bold text-dark">{{ item.pizza.name }}</div>
+                                        <small class="text-muted">Size: {{ item.size | capitalize }}</small>
+                                    </td>
+                                    <td class="pt-3 text-center fw-bold">{{ item.quantity }}</td>
+                                    <td class="pt-3 text-end fw-bold">₹{{ "%.2f"|format(item.unit_price * item.quantity) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row justify-content-end">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="bg-light p-4 rounded-4">
+                                {% set items_total = order.total_amount / 1.05 %}
+                                {% set tax = order.total_amount - items_total %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Subtotal</span>
+                                    <span class="fw-bold">₹{{ "%.2f"|format(items_total) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Tax (5%)</span>
+                                    <span class="fw-bold">₹{{ "%.2f"|format(tax) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3 border-bottom pb-3">
+                                    <span class="text-muted">Delivery</span>
+                                    <span class="text-success fw-bold">Free</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold fs-5">Total Paid</span>
+                                    <span class="fw-bold fs-3 text-primary">₹{{ "%.2f"|format(order.total_amount) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white text-center p-4 border-top">
+                    <p class="text-muted mb-0"><i class="fa-solid fa-clock me-2 text-warning"></i> Estimated delivery time: <strong>30-45 minutes</strong></p>
+                </div>
+            </div>
+
+            <div class="text-center mt-5 mb-3 d-flex justify-content-center gap-3">
+                <button onclick="window.print()" class="btn btn-outline-primary btn-lg rounded-pill px-4 fw-bold shadow-sm d-print-none">
+                    <i class="fa-solid fa-print me-2"></i> Print Receipt
+                </button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm d-print-none">
+                    Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        body * { visibility: hidden; }
+        #receiptCard, #receiptCard * { visibility: visible; }
+        #receiptCard { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; }
+        .bg-light { background-color: transparent !important; }
+        .d-print-none { display: none !important; }
+    }
+</style>
+{% endblock %}

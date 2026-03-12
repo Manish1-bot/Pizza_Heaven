@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start">
+                <span class="badge bg-primary rounded-pill mb-3 px-3 py-2 text-uppercase letter-spacing-1">Our Story</span>
+                <h1 class="display-4 fw-bold mb-4">Crafting the Perfect Pizza Since 2010</h1>
+                <p class="lead text-muted mb-4">At Pizza Heaven, we believe that great pizza starts with passion. We source the finest local ingredients and authentic Italian flour to create our signature hand-tossed crusts.</p>
+                <p class="text-muted mb-4 pb-2">Every pizza that leaves our wood-fired oven is a masterpiece of flavor, baked at 800 degrees for exactly 90 seconds to achieve that perfect combination of crispy char and chewy center.</p>
+                
+                <div class="d-flex justify-content-center justify-content-lg-start gap-4">
+                    <div class="text-center">
+                        <h2 class="text-primary fw-bold mb-0">50+</h2>
+                        <span class="text-muted small text-uppercase fw-bold">Pizza Varieties</span>
+                    </div>
+                    <div class="border-end"></div>
+                    <div class="text-center">
+                        <h2 class="text-primary fw-bold mb-0">30m</h2>
+                        <span class="text-muted small text-uppercase fw-bold">Fast Delivery</span>
+                    </div>
+                    <div class="border-end"></div>
+                    <div class="text-center">
+                        <h2 class="text-primary fw-bold mb-0">99%</h2>
+                        <span class="text-muted small text-uppercase fw-bold">Happy Customers</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 position-relative">
+                <div class="position-absolute top-50 start-50 translate-middle rounded-circle" style="width: 350px; height: 350px; background: rgba(255, 179, 0, 0.2); filter: blur(40px); z-index: 1;"></div>
+                <img src="{{ url_for('static', filename='images/pizzas/default_pizza.png') }}" alt="Our Kitchen" class="img-fluid rounded-circle shadow-lg position-relative border border-5 border-white" style="z-index: 2; transform: rotate(5deg);">
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Pizza Portal{% endblock %} - Pizza Heaven</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+                <i class="fa-solid fa-pizza-slice text-primary me-2"></i>
+                <span class="text-dark">Pizza</span><span class="text-primary">Heaven</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.menu') }}">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                    <!-- Cart Icon -->
+                    <li class="nav-item me-3">
+                        <a class="nav-link" href="{{ url_for('main.cart_view') }}">
+                            <i class="fa-solid fa-cart-shopping fs-5"></i>
+                            {% set cart_count = session.get('cart', {}) | length %}
+                            <span class="cart-badge">{{ cart_count }}</span>
+                        </a>
+                    </li>
+                    
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link text-primary fw-bold" href="{{ url_for('admin.dashboard') }}">Admin Panel</a>
+                        </li>
+                        {% endif %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-regular fa-user me-1"></i> {{ current_user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('user.profile') }}">My Profile & Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('user.logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary rounded-pill px-4 ms-2" href="{{ url_for('user.register') }}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-4">
+        <div class="row w-100">
+            <div class="col-md-8 mx-auto position-fixed top-0 start-50 translate-middle-x mt-5" style="z-index: 1050; width: 90%; max-width: 600px;">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm text-center" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row py-4">
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <a class="d-flex align-items-center mb-3 text-white text-decoration-none" href="#">
+                        <i class="fa-solid fa-pizza-slice text-primary me-2 fs-3"></i>
+                        <span class="fs-4 fw-bold">Pizza<span class="text-primary">Heaven</span></span>
+                    </a>
+                    <p class="text-muted">Delivering the best artisanal pizzas straight from our wood-fired oven to your door. Fresh ingredients, perfect crust, unforgettable taste.</p>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">Quick Links</h5>
+                    <div class="footer-links">
+                        <a href="{{ url_for('main.index') }}">Home</a>
+                        <a href="{{ url_for('main.menu') }}">Menu</a>
+                        <a href="{{ url_for('main.about') }}">About Us</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="footer-title">Contact Us</h5>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2"><i class="fa-solid fa-location-dot me-2 text-primary"></i> 123 Pizza Street, Food City</li>
+                        <li class="mb-2"><i class="fa-solid fa-phone me-2 text-primary"></i> (555) 123-4567</li>
+                        <li class="mb-2"><i class="fa-solid fa-envelope me-2 text-primary"></i> hello@pizzaheaven.com</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-title">Opening Hours</h5>
+                    <ul class="list-unstyled text-muted">
+                        <li class="mb-2 d-flex justify-content-between"><span>Mon - Fri:</span> <span>10:00 AM - 11:00 PM</span></li>
+                        <li class="mb-2 d-flex justify-content-between"><span>Saturday:</span> <span>10:00 AM - 12:00 AM</span></li>
+                        <li class="mb-2 d-flex justify-content-between"><span>Sunday:</span> <span>11:00 AM - 10:00 PM</span></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary mt-2 mb-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="text-muted mb-0">&copy; 2024 Pizza Heaven. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-muted me-3 fs-5"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="text-muted me-3 fs-5"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#" class="text-muted fs-5"><i class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

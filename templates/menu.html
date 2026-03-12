@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Our <span class="text-primary">Menu</span></h1>
+        <p class="lead text-muted max-w-700 mx-auto">Explore our delicious range of handcrafted pizzas made with passion and the finest ingredients.</p>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="row mb-5 align-items-center justify-content-between bg-white p-3 rounded-pill shadow-sm">
+        <div class="col-md-6 mb-3 mb-md-0 d-flex justify-content-center justify-content-md-start">
+            <div class="btn-group" role="group" aria-label="Category Filters">
+                <a href="{{ url_for('main.menu') }}" class="btn btn-outline-primary {{ 'active' if not request.args.get('category') else '' }} rounded-start-pill px-4">All</a>
+                <a href="{{ url_for('main.menu', category='veg') }}" class="btn btn-outline-success {{ 'active' if request.args.get('category') == 'veg' else '' }} px-4"><i class="fa-solid fa-leaf me-1"></i>Veg</a>
+                <a href="{{ url_for('main.menu', category='non-veg') }}" class="btn btn-outline-danger {{ 'active' if request.args.get('category') == 'non-veg' else '' }} rounded-end-pill px-4"><i class="fa-solid fa-drumstick-bite me-1"></i>Non-Veg</a>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <form action="{{ url_for('main.menu') }}" method="GET" class="d-flex">
+                {% if request.args.get('category') %}
+                <input type="hidden" name="category" value="{{ request.args.get('category') }}">
+                {% endif %}
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control rounded-start-pill border-end-0 shadow-none ps-4" placeholder="Search for a pizza..." value="{{ request.args.get('search', '') }}">
+                    <button class="btn btn-outline-secondary border-start-0 rounded-end-pill bg-white px-4" type="submit">
+                        <i class="fa-solid fa-search text-primary"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pizza Grid -->
+    <div class="row g-4">
+        {% for pizza in pizzas %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="card pizza-card h-100">
+                {% if pizza.category == 'veg' %}
+                <span class="category-badge category-veg"><i class="fa-solid fa-leaf"></i></span>
+                {% else %}
+                <span class="category-badge category-non-veg"><i class="fa-solid fa-drumstick-bite"></i></span>
+                {% endif %}
+                
+                <div class="pizza-img-wrapper" data-bs-toggle="modal" data-bs-target="#pizzaModal{{ pizza.id }}" style="cursor: pointer;">
+                    {% if pizza.image_url %}
+                        <img src="{{ url_for('static', filename='images/pizzas/' + pizza.image_url) }}" alt="{{ pizza.name }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/pizzas/default_pizza.png') }}" alt="{{ pizza.name }}">
+                    {% endif %}
+                </div>
+                
+                <div class="card-body d-flex flex-column text-center p-3">
+                    <h5 class="pizza-title text-truncate mb-1" title="{{ pizza.name }}">{{ pizza.name }}</h5>
+                    <p class="pizza-desc small text-muted mb-3">{{ pizza.description }}</p>
+                    
+                    <div class="mt-auto">
+                        <h5 class="text-primary fw-bold mb-3">₹{{ pizza.size_small_price }} - ₹{{ pizza.size_large_price }}</h5>
+                        <button class="btn btn-primary w-100 rounded-pill btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#pizzaModal{{ pizza.id }}">
+                            <i class="fa-solid fa-plus me-1"></i> Options
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Modal for this Pizza -->
+        <div class="modal fade" id="pizzaModal{{ pizza.id }}" tabindex="-1" aria-labelledby="pizzaModalLabel{{ pizza.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="modal-header border-0 bg-light pb-0 position-relative">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="row g-0">
+                            <div class="col-md-5 bg-light d-flex align-items-center justify-content-center p-4">
+                                <img src="{{ url_for('static', filename='images/pizzas/' + (pizza.image_url if pizza.image_url else 'default_pizza.png')) }}" alt="{{ pizza.name }}" class="img-fluid rounded-circle shadow-md" style="width: 200px; height: 200px; object-fit: cover;">
+                            </div>
+                            <div class="col-md-7 p-4">
+                                <h3 class="fw-bold mb-1" id="pizzaModalLabel{{ pizza.id }}">{{ pizza.name }}</h3>
+                                <p class="text-muted small mb-4">{{ pizza.description }}</p>
+
+                                <form action="{{ url_for('main.add_to_cart') }}" method="POST">
+                                    <input type="hidden" name="pizza_id" value="{{ pizza.id }}">
+                                    
+                                    <!-- Size Selection -->
+                                    <h6 class="fw-bold mb-3">Choose Size</h6>
+                                    <div class="d-flex gap-2 flex-column mb-4">
+                                        <label class="btn btn-outline-secondary w-100 text-start position-relative border-1 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <input class="form-check-input me-2" type="radio" name="size" value="small" checked required>
+                                                Small (8")
+                                            </span>
+                                            <span class="fw-bold text-primary">₹{{ pizza.size_small_price }}</span>
+                                        </label>
+                                        <label class="btn btn-outline-secondary w-100 text-start position-relative border-1 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <input class="form-check-input me-2" type="radio" name="size" value="medium">
+                                                Medium (10")
+                                            </span>
+                                            <span class="fw-bold text-primary">₹{{ pizza.size_medium_price }}</span>
+                                        </label>
+                                        <label class="btn btn-outline-secondary w-100 text-start position-relative border-1 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <input class="form-check-input me-2" type="radio" name="size" value="large">
+                                                Large (12")
+                                            </span>
+                                            <span class="fw-bold text-primary">₹{{ pizza.size_large_price }}</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- Quantity Input -->
+                                    <div class="d-flex align-items-center gap-3 mt-4">
+                                        <label for="quantity" class="fw-bold mb-0">Quantity:</label>
+                                        <input type="number" name="quantity" class="form-control text-center rounded-pill" value="1" min="1" max="10" style="width: 80px;">
+                                    </div>
+
+                                    <div class="mt-4 pt-3 border-top text-end">
+                                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-bold w-100 shadow-sm"><i class="fa-solid fa-cart-plus me-2"></i>Add to Cart</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <div class="display-1 text-muted opacity-25 mb-4"><i class="fa-solid fa-pizza-slice"></i></div>
+            <h3 class="text-muted">No pizzas found.</h3>
+            <p>Try adjusting your search or category filters.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
