@@ -1,3 +1,4 @@
+import os
 from app import create_app
 from utils.db import db, bcrypt
 from models.user import User
@@ -35,8 +36,10 @@ def init_db():
         
     db.session.commit()
 
+# Initialize DB when app starts (works for both gunicorn and python run.py)
+with app.app_context():
+    init_db()
+
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()
-        
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)

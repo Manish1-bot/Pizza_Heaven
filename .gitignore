@@ -1,0 +1,26 @@
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database (SQLite - use Railway's DB instead)
+instance/
+*.db
+*.sqlite3
+
+# Environment variables (NEVER commit this!)
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
